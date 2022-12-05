@@ -1,5 +1,20 @@
 <template>
   <div>
+    <div style="margin-bottom: 5px;">
+      <el-input v-model="name" placeholder="姓名" suffix-icon="el-icon-search" style="width: 200px;"
+                @keyup.enter.native="getPage"
+      ></el-input>
+      <el-select v-model="sex" style="margin-left: 5px;" filterable placeholder="请选择性别">
+        <el-option
+            v-for="item in sexs"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+        </el-option>
+      </el-select>
+      <el-button type="primary" style="margin-left: 5px;" @click="getPage">查询</el-button>
+      <el-button type="success" @click="resetParam">重置</el-button>
+    </div>
     <el-table :data="tableData"
               :header-cell-style="{background:'#f3f6fd', color: '#555'}"
     >
@@ -73,13 +88,28 @@ export default {
       totalCount:100,
       // 当前页码
       currentPage: 1,
-      tableData: []
+      // 表数据
+      tableData: [],
+      // 输入的姓名
+      name: '',
+      // 性别
+      sex: '',
+      sexs: [
+          {
+            value: '1',
+            label: '男'
+          }, {
+            value: '0',
+            label: '女'
+          }
+      ]
     }
   },
   methods:{
     getPage(){
       this.$axios.get(this.$httpUrl+'/employee/page?currentPage='+this.currentPage+
-          "&pageSize="+this.pageSize).then(res=>res.data).then(res=>{
+          "&pageSize="+this.pageSize+"&name="+this.name+"&sex="+this.sex)
+          .then(res=>res.data).then(res=>{
         console.log(res)
         if (res.code == 1){
           this.tableData = res.data.rows
@@ -89,6 +119,10 @@ export default {
         }
 
       })
+    },
+    resetParam(){
+      this.name = '';
+      this.sex = '';
     },
     loadPost(){
       this.$axios.post(this.$httpUrl+'/employee',{}).then(res=>res.data).then(res=>{
